@@ -1,14 +1,16 @@
 Package: scBSP
-Version: 0.0.1
-Date: 2024-02-06
+Version: 1.0.0
+Date: 2024-05-02
 Title: A Fast Tool for Single-Cell Spatially Variable Genes Identifications on Large-Scale Data
-Authors@R: 
-    person("Jinpu", "Li", , "castle.lee.f@gmail.com", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0002-6656-2896"))
+Authors@R: c(
+    person("Jinpu", "Li", email = "castle.lee.f@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-6656-2896")),
+    person("Yiqing", "Wang", email = "yiqing@wangemail.com", role = "aut")
+	)
 Description: Identifying spatially variable genes is critical in linking molecular cell functions 
 	with tissue phenotypes. This package utilizes a granularity-based dimension-agnostic tool, 
 	single-cell big-small patch (scBSP), implementing sparse matrix operation and KD tree 
-	method for distance calculation, for the identification of spatially variable genes on 
+	methods for distance calculation, for the identification of spatially variable genes on 
 	large-scale data. The detailed description of this method is available at Wang, J. 
 	and Li, J. et al. 2023 (Wang, J. and Li, J. (2023), <doi:10.1038/s41467-023-43256-5>).
 License: GPL (>= 2)

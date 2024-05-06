@@ -11,8 +11,8 @@
 LoadSpatial <- function(InputData, Dimension = 2){
   # Load in SeuratData
   extract_seurat_sp <- function(InputSeuratData, Slice_Num){
-    if("imagerow"%in%colnames(InputSeuratData@images[[Slice_Num]]@coordinates)){
-      spmat_seurat <- as.data.frame(cbind(InputSeuratData@images[[Slice_Num]]@coordinates[, c("imagerow", "imagecol")]))
+    if("row"%in%colnames(InputSeuratData@images[[Slice_Num]]@coordinates)){
+      spmat_seurat <- as.data.frame(cbind(InputSeuratData@images[[Slice_Num]]@coordinates[, c("col", "row")]))
     }
     else{
       spmat_seurat <- as.data.frame(cbind(InputSeuratData@images[[Slice_Num]]@coordinates[, c("x", "y")]))
