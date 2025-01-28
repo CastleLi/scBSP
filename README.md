@@ -10,7 +10,19 @@ large-scale data. A corresponding Python library is available at [https://pypi.o
 # Installation
 This package can be installed on R CRAN
 ```
+# Install sparseMatrixStats if not already installed
+
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+    install.packages("BiocManager")
+}
+
+if (!requireNamespace("sparseMatrixStats", quietly = TRUE)) {
+    BiocManager::install("sparseMatrixStats")
+}
+
+# Install scBSP from CRAN
 install.packages("scBSP")
+
 ```
 
 # Usage
