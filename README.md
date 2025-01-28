@@ -1,4 +1,4 @@
-# scBSP - A Fast Tool for Single-Cell Spatially Variable Genes Identifications on Large-Scale Spatially Resolved Transcriptomics Data
+# scBSP: A fast and accurate tool for identifying spatially variable features from high-resolution spatial omics data 
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11123268.svg)](https://doi.org/10.5281/zenodo.11123268)
 
