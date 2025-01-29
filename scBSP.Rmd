@@ -1,0 +1,323 @@
+---
+title: "Identifying spatially variable features from high-resolution spatial omics data with scBSP"
+output: html_document
+date: "2025-01-28"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+This package utilizes a granularity-based dimension-agnostic tool, single-cell big-small patch (scBSP), implementing sparse matrix operation and Approximate Nearest Neighbor search method for distance calculation, for the identification of spatially variable genes on
+large-scale data. A corresponding Python library is available at [https://pypi.org/project/scbsp](https://pypi.org/project/scbsp/).
+
+
+
+## Installation
+
+This package can be installed on R CRAN. 
+
+```{r echo=T, message=FALSE}
+# Install sparseMatrixStats if not already installed
+
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+    install.packages("BiocManager")
+}
+
+if (!requireNamespace("sparseMatrixStats", quietly = TRUE)) {
+    BiocManager::install("sparseMatrixStats")
+}
+
+# Install scBSP from CRAN
+if (!requireNamespace("scBSP", quietly = TRUE)) {
+    install.packages("scBSP")
+}
+
+```
+
+
+
+
+
+
+## Example 1: Identify Spatially Variable Genes on HDST Data of the Mouse Hippocampus
+
+In this example, we will identify spatially variable genes (SVGs) using the HDST dataset of the mouse hippocampus. HDST (High-Definition Spatial Transcriptomics) provides subcellular resolution data. This dataset contains **181,367 spots** and **19,950 genes**, with a sparse density of approximately **0.0003** (indicating only 0.03% of the matrix elements are non-zero). Such high-resolution data offers unique insights into spatial gene expression patterns but also poses computational challenges due to its size and sparsity.
+
+### Step 1: Install and Load Required Libraries
+
+First, ensure that the required libraries (`ggplot2` and `scBSP`) are installed and loaded. `ggplot2` is used for data visualization, and `scBSP` is the primary tool for identifying spatially variable genes.
+
+
+```{r echo=T, message=FALSE}
+
+if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    install.packages("ggplot2")
+}
+
+library(ggplot2)
+library(scBSP)
+
+load("./processed data/CN24_D1_unmodgtf_filtered_red_ut_HDST_final_clean.rds")
+
+```
+
+### Step 2: Load the Processed HDST Data
+
+After loading the data, you can examine the structure of the expression count matrix (sp_count). This sparse matrix provides a compact representation of gene expression data, where most values are zero.
+
+```{r}
+head(sp_count)
+```
+
+Here, the rows correspond to genes, and the columns correspond to spatial spots. Each cell in the matrix represents the expression count of a gene in a specific spot.
+
+### Step 3: Identify Spatially Variable Genes (SVGs)
+
+To identify SVGs, we use the scBSP function, which calculates p-values for each gene to assess its spatial variability. This step may require significant computational resources depending on the size of the data.
+
+```{r}
+system.time(P_values <- scBSP(location, sp_count))
+```
+
+### Explanation:
+
+* location: A matrix containing the x- and y-coordinates of the spatial spots.
+* sp_count: The sparse matrix of gene expression counts.
+* P_values: The output, which includes gene names and p-values for each gene. Genes with smaller p-values are more likely to exhibit spatial patterns in their expression.
+
+### Step 4: Visualize a Spatially Variable Gene
+
+To visualize the spatial pattern of a gene, we merge the spatial coordinates with the expression data of the most significant gene (i.e., the gene with the smallest p-value). We then create a scatter plot with ggplot2.
+
+```{r, echo=FALSE}
+
+# Create merged data for plot; using the most significant gene as example
+scBSP_SVG_Exp_HDST <- data.frame(X = location[,1],
+                                 Y = location[,2],
+                                 Exp = sp_count[which.min(P_values$P_values),])
+
+ggplot(scBSP_SVG_Exp_HDST, aes(x = X, y = Y, colour = Exp))+
+  geom_point(size = 1)+
+  scale_color_gradientn(colours = c("#FEFEFE05", "#1E865466", "#004533FF", "#004533FF"),
+                        breaks = c(0, 1, 2, 3),
+                        labels = c("Low", "", "","High")) +
+  theme_void()+ 
+  theme(legend.position = "none")
+
+```
+
+### Explanation:
+
+* The X and Y columns specify the spatial positions of spots.
+* The Exp column represents the expression values of the most significant gene.
+* geom_point creates a scatter plot where the color intensity reflects gene expression levels.
+* The color gradient visually distinguishes low and high expression levels across spatial spots.
+
+
+
+
+## Example 2: Downstream Analysis on HDST Data of the Mouse Hippocampus
+
+In the first example, we identified SVGs from HDST data of the mouse hippocampus. In this example, we will further analyze these genes by performing Gene Ontology (GO) enrichment analysis, which helps interpret the biological significance of the identified genes by grouping them into known functional categories.
+
+### Step 1: Install and Load Required Libraries
+
+Before performing GO enrichment analysis, we need to ensure that the required R packages are installed and loaded. The following packages are essential for functional enrichment analysis:
+
+* vidger – A package for visualizing gene set enrichment results.
+* AnnotationDbi – Provides tools for working with gene annotations.
+* org.Mm.eg.db – The mouse gene annotation database, which maps gene symbols to functional annotations.
+* clusterProfiler – A widely used package for performing enrichment analysis on gene lists.
+
+If any of these packages are not installed, the script will install them automatically using Bioconductor.
+
+```{r echo=T, message=FALSE}
+
+# Check and install necessary packages
+
+if (!requireNamespace("vidger", quietly = TRUE)) {
+    BiocManager::install("vidger")
+}
+if (!requireNamespace("AnnotationDbi", quietly = TRUE)) {
+    BiocManager::install("AnnotationDbi")
+}
+if (!requireNamespace("org.Mm.eg.db", quietly = TRUE)) {
+    BiocManager::install("org.Mm.eg.db")
+}
+if (!requireNamespace("clusterProfiler", quietly = TRUE)) {
+    BiocManager::install("clusterProfiler")
+}
+
+# Load the required libraries
+
+library(vidger)
+library(AnnotationDbi)
+library(org.Mm.eg.db)
+library(clusterProfiler)
+
+```
+
+
+
+
+
+
+### Step 2: Perform GO Enrichment Analysis
+
+Once we have identified the SVGs, we will determine which ontology they are significantly involved in. We will conduct GO enrichment analysis using the clusterProfiler package. This step will also help refine the identified candidate biomarkers.
+
+The key steps in this analysis include:
+
+* Filtering significant genes: Extract genes with p-values < 0.05 from the previously calculated P_values dataset.
+* Performing GO enrichment analysis: Using the `enrichGO()` function, we map the significant genes to Biological Processes (BP) using the `org.Mm.eg.db` annotation database.
+
+Visualizing the results: A dot plot is generated to show the top enriched biological processes.
+
+
+```{r echo=T}
+
+scBSP_Sig_Genes <- P_values$GeneNames[which(P_values$P_values<0.05)]
+scBSP_Sig_GO <- enrichGO(scBSP_Sig_Genes,
+                         OrgDb = "org.Mm.eg.db", 
+                         ont="BP", 
+                         keyType="SYMBOL", 
+                         pvalueCutoff = 0.0001,
+                         readable=TRUE)
+  
+# generate figure
+dotplot(scBSP_Sig_GO, showCategory = 10)
+
+
+```
+
+### Interpretation of the results:
+
+* The dot plot provides a graphical summary of the top 10 significantly enriched biological processes associated with the identified genes.
+* The x-axis represents the enrichment ratio, while the y-axis lists the biological processes.
+* Larger and darker-colored dots indicate more statistically significant enrichment.
+
+This downstream analysis helps uncover the functional roles of spatially variable genes in the mouse hippocampus, providing insights into region-specific gene activities.
+
+
+
+
+## Example 3: Identify spatially variable genes using data from Seurat object
+
+This example demonstrates the analysis of high-density SlideSeq V2 data from Seurat object using the `scBSP` package. We will install and load the necessary data and libraries, preprocess the data and detect the spatially variable genes using scBSP.
+
+### Step 1: Install Required Packages
+
+To begin, we ensure that the required packages are installed. The `remotes` package will allow us to install `SeuratData`, which contains the dataset we need.
+
+
+```{r echo=T, message=FALSE}
+# Install required package if not already installed
+if (!requireNamespace("remotes", quietly = TRUE)) {
+  install.packages("remotes")
+}
+
+if (!requireNamespace("Seurat", quietly = TRUE)) {
+  install.packages("Seurat")
+}
+
+if (!requireNamespace("ggplot2", quietly = TRUE)) {
+  install.packages("ggplot2")
+}
+
+# Install SeuratData from GitHub
+remotes::install_github("satijalab/seurat-data")
+```
+
+Next, we load the libraries that will be used throughout this analysis: Seurat, SeuratData, and SeuratObject.
+
+```{r echo=T, message=FALSE}
+
+# Load required libraries
+library(scBSP)
+library(Seurat)
+library(SeuratData)
+library(SeuratObject)
+library(ggplot2)
+
+```
+
+### Step 2: Load and Preprocess Data
+
+The Slide-seq V2 dataset of the mouse hippocampus can now be installed. This dataset contains spatially resolved transcriptomics data with relatively high density.
+
+```{r echo=T, message=FALSE, warning=FALSE}
+
+# Install the Slide-seq v2 dataset
+InstallData("ssHippo")
+
+```
+
+Once the dataset is installed, we load it into the environment and preprocess it for further analysis. We extract the filtered expression matrix using the scBSP package.
+
+```{r, message=FALSE, warning=FALSE}
+
+# Load the Slide-seq v2 data
+slide.seq <- LoadData("ssHippo")
+
+# Extract spatial data and expression matrix
+data_extracted <- scBSP::LoadSpatial(slide.seq)
+
+# Apply a filtering step on the expression matrix
+ExpMatrix_Filtered <- scBSP::SpFilter(data_extracted$ExpMatrix, Threshold = 1)
+```
+
+To understand the structure of the data, we check the dimensions of the SlideSeq coordinates and the filtered gene expression matrix.
+
+```{r}
+
+# Dimensions of the SlideSeq coordinates
+dim(data_extracted$Coords)
+
+# Dimensions of the filtered gene expression matrix
+dim(ExpMatrix_Filtered)
+
+```
+
+### Step 3: Identify SVGs and Recording Computational Time
+
+```{r}
+
+# Record computational time during scBSP analysis
+system.time(P_values <- scBSP::scBSP(data_extracted$Coords, ExpMatrix_Filtered))
+
+```
+
+### Step 4: Visualize a Spatially Variable Gene
+
+To visualize the spatial pattern of a gene, we merge the spatial coordinates with the expression data of the most significant gene (i.e., the gene with the smallest p-value). We then create a scatter plot with ggplot2.
+
+```{r, echo=FALSE}
+
+# Create merged data for plot; using the most significant gene as example
+scBSP_SVG_Exp_HDST <- data.frame(X = data_extracted$Coords[,1],
+                                 Y = data_extracted$Coords[,2],
+                                 Exp = ExpMatrix_Filtered[which.min(P_values$P_values),])
+
+ggplot(scBSP_SVG_Exp_HDST, aes(x = X, y = Y, colour = Exp))+
+  geom_point(size = 1)+
+  scale_color_gradientn(colours = c("#FEEEFE20", "#1E865466", "#004533FF", "#004533FF"),
+                        breaks = c(0, 1, 2, 3),
+                        labels = c("Low", "", "","High")) +
+  theme_void()+ 
+  theme(legend.position = "none")
+
+```
+
+
+### References
+1. Wang, J., Li, J., Kramer, S.T. et al. Dimension-agnostic and granularity-based spatially variable gene identification using BSP. Nat Commun 14, 7367 (2023). https://doi.org/10.1038/s41467-023-43256-5
+
+2. Li, J., Wang, Y., Raina, M.A. et al. scBSP: A fast and accurate tool for identifying spatially variable genes from spatial transcriptomic data. bioRxiv 2024.05.06.592851; doi: https://doi.org/10.1101/2024.05.06.592851
+
+**HDST data source**
+https://xzhoulab.github.io/SPARK/02_SPARK_Example/
+
+**SlideSeq V2 data from Seurat**
+Stickels, R.R., Murray, E., Kumar, P., Li, J., Marshall, J.L., Di Bella, D., Arlotta, P., Macosko, E.Z. and Chen, F., 2020. Sensitive spatial genome wide expression profiling at cellular resolution. BioRxiv, pp.2020-03. doi: https://doi.org/10.1101/2020.03.12.989806
