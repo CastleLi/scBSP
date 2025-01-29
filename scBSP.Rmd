@@ -8,6 +8,9 @@ date: "2025-01-28"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## Introduction
+
+![Workflow of scBSP](./fig/Workflow.png)
 
 This package utilizes a granularity-based dimension-agnostic tool, single-cell big-small patch (scBSP), implementing sparse matrix operation and Approximate Nearest Neighbor search method for distance calculation, for the identification of spatially variable genes on
 large-scale data. A corresponding Python library is available at [https://pypi.org/project/scbsp](https://pypi.org/project/scbsp/).
@@ -317,7 +320,9 @@ ggplot(scBSP_SVG_Exp_HDST, aes(x = X, y = Y, colour = Exp))+
 2. Li, J., Wang, Y., Raina, M.A. et al. scBSP: A fast and accurate tool for identifying spatially variable genes from spatial transcriptomic data. bioRxiv 2024.05.06.592851; doi: https://doi.org/10.1101/2024.05.06.592851
 
 **HDST data source**
+
 https://xzhoulab.github.io/SPARK/02_SPARK_Example/
 
 **SlideSeq V2 data from Seurat**
+
 Stickels, R.R., Murray, E., Kumar, P., Li, J., Marshall, J.L., Di Bella, D., Arlotta, P., Macosko, E.Z. and Chen, F., 2020. Sensitive spatial genome wide expression profiling at cellular resolution. BioRxiv, pp.2020-03. doi: https://doi.org/10.1101/2020.03.12.989806
