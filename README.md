@@ -26,7 +26,7 @@ install.packages("scBSP")
 ```
 
 # Tutorial
-A detailed tutorial is available at [here](./scBSP.html)
+A detailed tutorial is available at [here](https://castleli.github.io/scBSP/scBSP.html)
 
 # Reference
 Li, Jinpu, Yiqing Wang, Mauminah Azam Raina, Chunhui Xu, Li Su, Qi Guo, Qin Ma, Juexin Wang, and Dong Xu. "scBSP: A fast and accurate tool for identifying spatially variable genes from spatial transcriptomic data." bioRxiv (2024).
