@@ -8,7 +8,7 @@ This package utilizes a granularity-based dimension-agnostic tool, single-cell b
 large-scale data. A corresponding Python library is available at [https://pypi.org/project/scbsp](https://pypi.org/project/scbsp/).
 
 # Installation
-This package can be installed on R CRAN
+This package can be installed on R CRAN. Installing all dependencies may take a few minutes.
 ```
 # Install sparseMatrixStats if not already installed
 
