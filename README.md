@@ -4,8 +4,8 @@
 
 ***
 
-This package utilizes a granularity-based dimension-agnostic tool, single-cell big-small patch (scBSP), implementing sparse matrix operation and KD-tree/balltree method for distance calculation, for the identification of spatially variable genes on
-large-scale data. A corresponding Python library is available at [https://pypi.org/project/scbsp](https://pypi.org/project/scbsp/).
+This package utilizes a granularity-based dimension-agnostic tool, single-cell big-small patch (scBSP), implementing sparse matrix operation and KD-tree/balltree method for distance calculation, for the identification of spatially variable features on spatially resolved multi-omics. This package was developed and tested on > R 4.0.0.
+A corresponding Python library is available at [https://pypi.org/project/scbsp](https://pypi.org/project/scbsp/).
 
 # Installation
 This package can be installed on R CRAN. Installing all dependencies may take a few minutes.
