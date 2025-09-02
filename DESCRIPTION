@@ -1,6 +1,6 @@
 Package: scBSP
-Version: 1.0.0
-Date: 2024-05-02
+Version: 1.1.0
+Date: 2025-09-01
 Title: A Fast Tool for Single-Cell Spatially Variable Genes Identifications on Large-Scale Data
 Authors@R: c(
     person("Jinpu", "Li", email = "castle.lee.f@gmail.com", role = c("aut", "cre"),
@@ -22,4 +22,4 @@ Imports: Matrix,
 	spam
 Suggests: knitr,
     rmarkdown
-RoxygenNote: 7.2.1
+RoxygenNote: 7.3.2
